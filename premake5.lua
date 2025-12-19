@@ -36,7 +36,8 @@ workspace "Miyamoto-Next"
         "lib/imgui/backends",
         "lib/nfd/src/include",
         "lib/simpleini",
-        "lib/backward-cpp"
+        "lib/backward-cpp",
+        "lib/tracy/public"
     }
     
     buildoptions {
@@ -80,7 +81,8 @@ workspace "Miyamoto-Next"
         defines {
             "RIO_DEBUG",
             "NW_DEBUG",
-            "_DEBUG"
+            "_DEBUG",
+            "TRACY_ENABLE"
         }
     
     filter { "configurations:Release" }
@@ -263,6 +265,13 @@ project "nfd"
             "lib/nfd/src/nfd_cocoa.m"
         }
 
+project "tracy"
+    kind "StaticLib"
+    
+    files {
+        "lib/tracy/public/TracyClient.cpp"
+    }
+
 project "Miyamoto-Next"
     files {
         "src/**"
@@ -273,7 +282,8 @@ project "Miyamoto-Next"
         "imgui",
         "nfd",
         "glew",
-        "glfw"
+        "glfw",
+        "tracy"
     }
 
     filter "system:linux"

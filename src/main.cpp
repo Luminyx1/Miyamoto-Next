@@ -2,6 +2,8 @@
 
 #include <rio.h>
 
+#include <tracy/Tracy.hpp>
+
 #if RIO_IS_WIN
     #include <Windows.h>
 #endif
@@ -22,6 +24,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 int main()
 #endif
 {
+    TracyNoop;
+    
     // Initialize RIO with root task
     if (!rio::Initialize<MainWindow>(cInitializeArg))
         return -1;
