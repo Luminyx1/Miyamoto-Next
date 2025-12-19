@@ -49,6 +49,7 @@
 #include <imgui_internal.h>
 
 #include <tracy/Tracy.hpp>
+#include <tracy/TracyOpenGL.hpp>
 
 #include <format>
 
@@ -100,6 +101,8 @@ void MainWindow::onResizeCallback_(s32 width, s32 height)
 void MainWindow::prepare_()
 {
   //RIO_LOG("MainWindow::prepare_(): start\n");
+  
+    TracyGpuContext;
 
 #if RIO_IS_DESKTOP
     rio::Window::instance()->setOnResizeCallback(&MainWindow::onResizeCallback_);

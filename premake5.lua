@@ -274,6 +274,7 @@ project "nfd"
 
 project "tracy"
     kind "StaticLib"
+    warnings "off"
     
     files {
         "lib/tracy/public/TracyClient.cpp"
