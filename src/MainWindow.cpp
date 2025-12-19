@@ -48,6 +48,8 @@
 
 #include <imgui_internal.h>
 
+#include <tracy/Tracy.hpp>
+
 #include <format>
 
 static const char* level_fname = "1-1.szs";
@@ -654,6 +656,7 @@ void MainWindow::processKeyboardInput_()
 
 void MainWindow::calc_()
 {
+    FrameMark;
     ImGuiUtil::newFrame();
 
     BgTexMgr::instance()->update();

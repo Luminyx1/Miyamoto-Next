@@ -5,7 +5,7 @@ workspace "Miyamoto-Next"
     staticruntime "on"
     warnings "Extra"
     platforms { "x86", "x64", "ARM64" }
-    configurations { "Debug", "Release" }
+    configurations { "Debug", "Release", "ReleaseDev" }
 
     toolset "clang"
 
@@ -85,7 +85,7 @@ workspace "Miyamoto-Next"
             "TRACY_ENABLE"
         }
     
-    filter { "configurations:Release" }
+    filter { "configurations:Release*" }
         optimize "speed"
         omitframepointer "on"
         symbols "off"
@@ -93,12 +93,19 @@ workspace "Miyamoto-Next"
             "RIO_RELEASE",
             "NW_RELEASE"
         }
+        
+    filter "configurations:ReleaseDev"
+        omitframepointer "off"
+        symbols "on"
+        defines {
+            "TRACY_ENABLE"
+        }
 
-    filter { "configurations:Release", "action:not vs*" }
+    filter { "configurations:Release*", "action:not vs*" }
         buildoptions { "-flto=auto" }
         linkoptions { "-flto=auto" }
 
-    filter { "configurations:Release", "action:vs*" }
+    filter { "configurations:Release*", "action:vs*" }
         flags { "LinkTimeOptimization" }
 
     filter { "configurations:Debug", "platforms:x64", "toolset:clang" }
@@ -307,5 +314,5 @@ project "Miyamoto-Next"
     filter "configurations:Debug"
         kind "ConsoleApp"
 
-    filter "configurations:Release"
+    filter "configurations:Release*"
         kind "WindowedApp"
