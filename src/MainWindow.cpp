@@ -2,6 +2,7 @@
 #include <CourseView.h>
 #include <MainWindow.h>
 #include <Preferences.h>
+#include <LegacySpritedata.h>
 #include <action/ActionMgr.h>
 #include <actor/ActorCreateMgr.h>
 #include <course/BgTexMgr.h>
@@ -33,6 +34,7 @@
 #include <utility/aglPrimitiveShape.h>
 #include <utility/aglPrimitiveTexture.h>
 #include <utility/aglVertexAttributeHolder.h>
+#include <variant>
 
 #if RIO_IS_CAFE
 #include <detail/aglGX2.h>
@@ -49,6 +51,8 @@
 #include <rio.h>
 
 #include <imgui_internal.h>
+
+#include <pugixml.hpp>
 
 #include <format>
 
@@ -123,7 +127,8 @@ void MainWindow::prepare_()
 #endif // RIO_IS_CAFE
 
     Preferences::createSingleton();
-    
+    LegacySpritedata::createSingleton();
+
     ThemeMgr::createSingleton();
     ThemeMgr::instance()->initialize();
     
@@ -334,6 +339,8 @@ void MainWindow::exit_()
     ResMgr::destroySingleton();
 
     ShaderHolder::destroySingleton();
+
+    LegacySpritedata::destroySingleton();
 
     agl::utl::VertexAttributeHolder::destroySingleton();
 
@@ -1081,11 +1088,22 @@ void MainWindow::drawPaletteUI_()
                 {
                     for (int n = 0; n < ActorCreateMgr::instance()->getTypeMaxNum(); n++)
                     {
-                        const std::u8string& name = ActorCreateMgr::instance()->getName(n);
-                        const std::string& str =
-                            name.empty()
-                                ? std::to_string(n)
-                                : std::format("{0:d}: {1:s}", n, (const char*)name.c_str());
+                        std::string str;
+
+                        const LegacySpritedata::SpriteDataEntry* spritedata = LegacySpritedata::instance()->get(n);
+                        if (spritedata != nullptr)
+                        {
+                            str = std::format("{0:d}: {1:s}", n, spritedata->name.c_str());
+                        }
+                        else
+                        {
+                            const std::u8string& name = ActorCreateMgr::instance()->getName(n);
+                            str =
+                                name.empty()
+                                    ? std::to_string(n)
+                                    : std::format("{0:d}: {1:s}", n, (const char*)name.c_str());
+                        }
+                        
 
                         if (filter.PassFilter(str.c_str()) && ImGui::Selectable(str.c_str(), mMapActorSelectedType == n))
                             mMapActorSelectedType = n;

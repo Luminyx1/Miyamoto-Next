@@ -37,7 +37,8 @@ workspace "Miyamoto-Next"
         "lib/imgui/backends",
         "lib/nfd/src/include",
         "lib/simpleini",
-        "lib/tracy/public"
+        "lib/tracy/public",
+        "lib/pugixml/src"
     }
 
     disablewarnings {
@@ -111,7 +112,10 @@ workspace "Miyamoto-Next"
         }
 
     filter { "configurations:Debug", "platforms:x64", "not toolset:gcc" }
-        sanitize { "Address", "UndefinedBehavior" }
+        sanitize {
+            "Address",
+        --    "UndefinedBehavior"
+        }
 
     filter "system:linux"
         systemversion "latest"
@@ -320,6 +324,14 @@ project "Lib_ModelStuff"
         "lib/ModelStuff-next/src/**"
     }
 
+project "Lib_pugixml"
+    kind "StaticLib"
+    warnings "off"
+    
+    files {
+        "lib/pugixml/src/pugixml.cpp"
+    }
+    
 project "Miyamoto-Next"
     files {
         "src/**"
@@ -336,7 +348,8 @@ project "Miyamoto-Next"
         "Lib_NFD",
         "Lib_GLEW",
         "Lib_GLFW",
-        "Lib_Tracy"
+        "Lib_Tracy",
+        "Lib_pugixml"
     }
 
     filter "not toolset:gcc"

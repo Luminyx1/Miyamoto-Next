@@ -175,8 +175,24 @@ struct MapActorData
         u16 x;
         u16 y;
     }   offset;
-    u16 event_id;       // Lower byte: event id 2, higher byte: event id 1.
-    u32 settings[2];    // Not u64
+    union
+    {
+        struct
+        {
+            u8 event_id1;
+            u8 event_id2;
+        };
+        u16 event_id;       // Lower byte: event id 2, higher byte: event id 1.
+    };
+    union
+    {
+        struct
+        {
+            u32 settings2;
+            u32 settings1;
+        };
+        u32 settings[2];    // Not u64
+    };
     u8  area;
     u8  layer;
     u8  movement_id;

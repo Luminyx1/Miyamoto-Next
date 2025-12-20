@@ -4,8 +4,11 @@
 #include <actor/ActorCreateMgr.h>
 #include <graphics/QuadRenderer.h>
 #include <item/MapActorItem.h>
+#include <util/OverloadedVisitor.h>
+#include <LegacySpritedata.h>
 
 #include <imgui.h>
+#include <variant>
 
 static const rio::Color4f sColor{
       0 / 255.f,
@@ -16,6 +19,7 @@ static const rio::Color4f sColor{
 
 MapActorItem::MapActorItem(const MapActorData& map_actor_data, u32 index)
     : ItemBase(ITEM_TYPE_MAP_ACTOR, index, map_actor_data.offset.x, map_actor_data.offset.y)
+    , mLegacyData(LegacySpritedata::instance()->get(map_actor_data.type))
 {
 }
 
@@ -87,11 +91,71 @@ void MapActorItem::drawSelectionUI()
     const MapActorData& map_actor_data = CourseView::instance()->getCourseDataFile().getMapActorData()[mItemID.getIndex()];
 
     const std::u8string& name = ActorCreateMgr::instance()->getName(map_actor_data.type);
-    if (name.empty())
-        ImGui::Text("Map Actor %d", map_actor_data.type);
+    if (mLegacyData != nullptr)
+    {
+        ImGui::Text("Map Actor %d: %s", map_actor_data.type, mLegacyData->name.c_str());
+        if (!name.empty())
+        {
+            ImGui::SameLine();
+            ImGui::TextColored(ImVec4(0.5, 0.5, 0.5, 1), " (%s)", (char*)(name.c_str()));
+        }
+    }
     else
-        ImGui::Text("Map Actor %d: %s", map_actor_data.type, (char*)(name.c_str()));
+    {
+        if (name.empty())
+            ImGui::Text("Map Actor %d", map_actor_data.type);
+        else
+            ImGui::Text("Map Actor %d: %s", map_actor_data.type, (char*)(name.c_str()));
+    }
+
     ImGui::Separator();
+
+    if (mLegacyData != nullptr)
+    {
+        for (const auto& setting : mLegacyData->settings)
+        {
+            // Extract the relevant bits from the settings and treat that subset as its own independent value.
+            u64 setting_value;
+
+            std::visit(OverloadedVisitor {
+                [&](const LegacySpritedata::SpriteDataEntry::List& list) {
+                    int current_index = -1;
+                    for (size_t i = 0; i < list.values.size(); i++)
+                    {
+                        if (list.values[i] == setting_value)
+                            current_index = int(i);
+                    }
+
+                    ImGui::Combo(setting.title.c_str(), &current_index, list.names.data(), int(list.names.size()));
+                    
+                    // write it back
+                },
+                [&](const LegacySpritedata::SpriteDataEntry::Checkbox& checkbox) {
+                    bool box = setting_value;
+                    
+                    ImGui::Checkbox(setting.title.c_str(), &box);
+                    
+                    // write it back
+                },
+                [&](const LegacySpritedata::SpriteDataEntry::Value& value) {
+                    int val = int(setting_value);
+
+                    ImGui::InputInt(setting.title.c_str(), &val);
+                    
+                    // write it back
+                },
+                [&](const LegacySpritedata::SpriteDataEntry::Bitfield& bitfield) {
+                    ImGui::Text("Bitfield: %s", setting.title.c_str());
+                },
+                [](const std::monostate&) {
+                    // no-op
+                },
+            }, setting.data);
+        }
+
+        if (!mLegacyData->settings.empty())
+            ImGui::Separator();
+    }
 
     const u8 single_step = 1; //Needed for +/- buttons to appear.
 

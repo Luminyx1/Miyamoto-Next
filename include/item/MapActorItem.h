@@ -2,6 +2,7 @@
 
 #include <course/CourseDataFile.h>
 #include <item/ItemBase.h>
+#include <LegacySpritedata.h>
 
 #include <gfx/lyr/rio_Drawable.h>
 
@@ -85,6 +86,7 @@ protected:
 
 protected:
     MapActorData    mSelectionData;
+    const LegacySpritedata::SpriteDataEntry* mLegacyData;
 };
 
 #define MAP_ACTOR_ITEM_CREATE(CLASS)                                                                \
